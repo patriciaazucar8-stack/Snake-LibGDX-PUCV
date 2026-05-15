@@ -5,15 +5,16 @@ import com.badlogic.gdx.utils.Array;
 
 public class Serpiente {
     private Array<Vector2> cuerpo;
-    private int direccion;
+    private Integer direccion;
 
     public Serpiente(int x, int y) {
         cuerpo = new Array<Vector2>();
         cuerpo.add(new Vector2(x, y));
-        direccion = Input.Keys.RIGHT;
+        direccion = null;
     }
 
     public void mover(boolean crecio) {
+    	if (direccion == null) return;
         Vector2 cabeza = cuerpo.first();
         Vector2 nuevaCabeza = new Vector2(cabeza.x, cabeza.y);
 
@@ -29,7 +30,29 @@ public class Serpiente {
     }
 
     // Getters y Setters
-    public Vector2 getCabeza() { return cuerpo.first(); }
-    public Array<Vector2> getCuerpo() { return cuerpo; }
-    public void setDireccion(int dir) { this.direccion = dir; }
+ // Getters y Setters
+    public Vector2 getCabeza() { 
+        return cuerpo.first(); 
+    }
+
+    public Array<Vector2> getCuerpo() { 
+        return cuerpo; 
+    }
+
+    public void setDireccion(int dir) {
+
+        // Primera dirección del juego
+        if (direccion == null) {
+            direccion = dir;
+            return;
+        }
+
+        // Evitar giro 180°
+        if (direccion == Input.Keys.UP && dir == Input.Keys.DOWN) return;
+        if (direccion == Input.Keys.DOWN && dir == Input.Keys.UP) return;
+        if (direccion == Input.Keys.LEFT && dir == Input.Keys.RIGHT) return;
+        if (direccion == Input.Keys.RIGHT && dir == Input.Keys.LEFT) return;
+
+        this.direccion = dir;
+    }
 }
