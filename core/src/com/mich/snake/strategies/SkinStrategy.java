@@ -1,0 +1,13 @@
+package com.mich.snake.strategies;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+
+public interface SkinStrategy {
+    // Definimos qué necesita hacer cualquier skin, sin decir CÓMO
+    void dibujarCuerpo(SpriteBatch batch, Vector2 pos, float tam, boolean esCabeza);
+    void dibujarComida(SpriteBatch batch, Vector2 pos, float tam);
+    Color getColorBordes();
+    Color getColorObstaculos();
+}

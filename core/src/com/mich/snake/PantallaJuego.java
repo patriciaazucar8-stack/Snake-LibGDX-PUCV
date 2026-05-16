@@ -1,5 +1,4 @@
 package com.mich.snake;
-import com.badlogic.gdx.graphics.Texture; 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -8,10 +7,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.mich.snake.strategies.SkinStrategy;
+import com.mich.snake.strategies.GatoStrategy;
 
 public class PantallaJuego implements Screen {
     private static final int TAM_CELDA = 20;
-    private static final int TAM_GATO_VISUAL = 40;
     private static final int BORDE = 20;
     boolean esperandoSiguienteNivel = false;
     final SnakeGame game; // Referencia al "Director"
@@ -26,8 +26,7 @@ public class PantallaJuego implements Screen {
     int metaComida = 3; // Cuántas debe comer para pasar de nivel
     int cantidadObstaculos = 3;
     BitmapFont font;
-    Texture texMichi;
-    Texture texLana;
+    private SkinStrategy skinActual;
 
     public PantallaJuego(final SnakeGame game, String skin) {
         this.game = game;
@@ -35,10 +34,9 @@ public class PantallaJuego implements Screen {
         this.tipoSkin = skin;
         comida = new Vector2(15, 15);
         font = new BitmapFont();
-        texMichi = new Texture("cat.png");
-        texLana = new Texture("lana.png");
         font.getData().setScale(1.2f);
         obstaculos = new Array<>();
+        this.skinActual = new GatoStrategy();
         generarObstaculos();
     }
     @Override
@@ -47,7 +45,6 @@ public class PantallaJuego implements Screen {
         Gdx.gl.glClearColor(0.2f, 0.5f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // 2. CONTROLES (Leer el teclado)
      // 2. CONTROLES (Ahora con Flechas y WASD)
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             serpiente.setDireccion(Input.Keys.UP);
@@ -120,40 +117,27 @@ public class PantallaJuego implements Screen {
             }
         } 
 
-        // 4. DIBUJAR 
+     // 4. DIBUJAR 
         game.shape.begin(com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled);
-        
-        game.shape.setColor(0.4f, 0.4f, 0.4f, 1); // Un gris un poco más claro
+        //Obstaculos
+        game.shape.setColor(skinActual.getColorObstaculos()); 
         for (Vector2 obs : obstaculos) {
-            // Dibujamos de 20x20 para que se toquen entre sí y parezcan una pared continua
-        	game.shape.rect(
-        		    obs.x * TAM_CELDA,
-        		    obs.y * TAM_CELDA,
-        		    TAM_CELDA,
-        		    TAM_CELDA
-        		);
+            game.shape.rect(obs.x * TAM_CELDA, obs.y * TAM_CELDA, TAM_CELDA, TAM_CELDA);
         }
-     // Gris intermedio para que resalte
-        game.shape.setColor(0.5f, 0.5f, 0.5f, 1);
 
+        //BORDES 
+        game.shape.setColor(skinActual.getColorBordes());
+
+        // Borde inferior
         game.shape.rect(0, 0, Gdx.graphics.getWidth(), BORDE);
-
-        game.shape.rect(
-            0,
-            Gdx.graphics.getHeight() - BORDE,
-            Gdx.graphics.getWidth(),
-            BORDE
-        );
-
+        // Borde superior
+        game.shape.rect(0, Gdx.graphics.getHeight() - BORDE, Gdx.graphics.getWidth(), BORDE);
+        // Borde izquierdo
         game.shape.rect(0, 0, BORDE, Gdx.graphics.getHeight());
+        // Borde derecho
+        game.shape.rect(Gdx.graphics.getWidth() - BORDE, 0, BORDE, Gdx.graphics.getHeight());
 
-        game.shape.rect(
-            Gdx.graphics.getWidth() - BORDE,
-            0,
-            BORDE,
-            Gdx.graphics.getHeight()
-        );
-        game.shape.end(); // Cerramos el dibujo de geometría básica
+        game.shape.end();
 
         // 5. CAPA DE SIGUIENTE NIVEL (Fondo oscuro y texto central)
         if (esperandoSiguienteNivel) {
@@ -165,7 +149,7 @@ public class PantallaJuego implements Screen {
             game.shape.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
 
-            // Dibujamos los textos de victoria
+            // Textos de victoria
             game.batch.begin();
             font.draw(game.batch, "¡Pasaste al nivel " + (nivelActual + 1) + "!", 
                       Gdx.graphics.getWidth() / 2f - 120, Gdx.graphics.getHeight() / 2f + 40);
@@ -178,38 +162,11 @@ public class PantallaJuego implements Screen {
             }
         }
 
-        // 6. DIBUJO DE ELEMENTOS DEL JUEGO (Michi y HUD)
      // 6. DIBUJO DE ELEMENTOS DEL JUEGO (Michi y HUD)
         game.batch.begin();
-
-        // Primero dibujamos la COMIDA (El ovillo de lana que está suelto)
-        game.batch.draw(texLana, comida.x * TAM_CELDA, comida.y * TAM_CELDA, TAM_CELDA, TAM_CELDA);
-
-        // Ahora dibujamos la SERPIENTE segmento por segmento
+        skinActual.dibujarComida(game.batch, comida, TAM_CELDA);
         for (int i = 0; i < serpiente.getCuerpo().size; i++) {
-            Vector2 v = serpiente.getCuerpo().get(i);
-            
-            if (i == 0) {
-                // LA CABEZA: El gato grande (Michi-Godzilla)
-                float offset = (TAM_GATO_VISUAL - TAM_CELDA) / 2f;
-                game.batch.draw(
-                    texMichi, 
-                    v.x * TAM_CELDA - offset, 
-                    v.y * TAM_CELDA - offset, 
-                    TAM_GATO_VISUAL, 
-                    TAM_GATO_VISUAL
-                );
-            } else {
-                // EL CUERPO: Los ovillos de lana recolectados
-                // Los dibujamos un pelín más chicos (16px) para que se vean como una hilera
-                game.batch.draw(
-                    texLana, 
-                    v.x * TAM_CELDA + 2, 
-                    v.y * TAM_CELDA + 2, 
-                    16, 
-                    16
-                );
-            }
+            skinActual.dibujarCuerpo(game.batch, serpiente.getCuerpo().get(i), TAM_CELDA, (i == 0));
         }
 
         // HUD: Nivel y Puntos
@@ -358,7 +315,5 @@ public class PantallaJuego implements Screen {
     @Override
     public void dispose() {
         if (font != null) font.dispose();
-        if (texMichi != null) texMichi.dispose();
-        if (texLana != null) texLana.dispose();
     }
 }
