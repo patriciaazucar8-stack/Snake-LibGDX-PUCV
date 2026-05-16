@@ -27,6 +27,7 @@ public class PantallaJuego implements Screen {
     int cantidadObstaculos = 3;
     BitmapFont font;
     Texture texMichi;
+    Texture texLana;
 
     public PantallaJuego(final SnakeGame game, String skin) {
         this.game = game;
@@ -35,6 +36,7 @@ public class PantallaJuego implements Screen {
         comida = new Vector2(15, 15);
         font = new BitmapFont();
         texMichi = new Texture("cat.png");
+        texLana = new Texture("lana.png");
         font.getData().setScale(1.2f);
         obstaculos = new Array<>();
         generarObstaculos();
@@ -121,26 +123,6 @@ public class PantallaJuego implements Screen {
         // 4. DIBUJAR 
         game.shape.begin(com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled);
         
-        // Comida
-        game.shape.setColor(1, 0, 0, 1); 
-        game.shape.rect(
-        	    comida.x * TAM_CELDA,
-        	    comida.y * TAM_CELDA,
-        	    TAM_CELDA,
-        	    TAM_CELDA
-        	);
-
-        // Skin del Michi
-        if (tipoSkin.equals("NEGRO")) {
-            game.shape.setColor(0.15f, 0.15f, 0.15f, 1);
-        } else if (tipoSkin.equals("TUXEDO")) {
-            game.shape.setColor(0.9f, 0.9f, 0.9f, 1);
-        } else if (tipoSkin.equals("NARANJO")) {
-            game.shape.setColor(1, 0.6f, 0, 1);
-        } else {
-            game.shape.setColor(0, 1, 1, 1);
-        }
-        
         game.shape.setColor(0.4f, 0.4f, 0.4f, 1); // Un gris un poco más claro
         for (Vector2 obs : obstaculos) {
             // Dibujamos de 20x20 para que se toquen entre sí y parezcan una pared continua
@@ -197,26 +179,43 @@ public class PantallaJuego implements Screen {
         }
 
         // 6. DIBUJO DE ELEMENTOS DEL JUEGO (Michi y HUD)
+     // 6. DIBUJO DE ELEMENTOS DEL JUEGO (Michi y HUD)
         game.batch.begin();
-        
-        // Dibujamos el cuerpo del michi con la imagen
-        for (Vector2 v : serpiente.getCuerpo()) {
-            // Calculamos un desfase para que el gato grande quede centrado en la celda chica
-            float offset = (TAM_GATO_VISUAL - TAM_CELDA) / 2f;
+
+        // Primero dibujamos la COMIDA (El ovillo de lana que está suelto)
+        game.batch.draw(texLana, comida.x * TAM_CELDA, comida.y * TAM_CELDA, TAM_CELDA, TAM_CELDA);
+
+        // Ahora dibujamos la SERPIENTE segmento por segmento
+        for (int i = 0; i < serpiente.getCuerpo().size; i++) {
+            Vector2 v = serpiente.getCuerpo().get(i);
             
-            game.batch.draw(
-                texMichi, 
-                v.x * TAM_CELDA - offset, 
-                v.y * TAM_CELDA - offset, 
-                TAM_GATO_VISUAL, 
-                TAM_GATO_VISUAL
-            );
+            if (i == 0) {
+                // LA CABEZA: El gato grande (Michi-Godzilla)
+                float offset = (TAM_GATO_VISUAL - TAM_CELDA) / 2f;
+                game.batch.draw(
+                    texMichi, 
+                    v.x * TAM_CELDA - offset, 
+                    v.y * TAM_CELDA - offset, 
+                    TAM_GATO_VISUAL, 
+                    TAM_GATO_VISUAL
+                );
+            } else {
+                // EL CUERPO: Los ovillos de lana recolectados
+                // Los dibujamos un pelín más chicos (16px) para que se vean como una hilera
+                game.batch.draw(
+                    texLana, 
+                    v.x * TAM_CELDA + 2, 
+                    v.y * TAM_CELDA + 2, 
+                    16, 
+                    16
+                );
+            }
         }
 
         // HUD: Nivel y Puntos
         font.draw(game.batch, "Nivel: " + nivelActual, TAM_CELDA, Gdx.graphics.getHeight() - 25);
-        font.draw(game.batch, "Michi-puntos: " + puntosActuales + "/" + metaComida, 20, Gdx.graphics.getHeight() - 45);
-        
+        font.draw(game.batch, "Lanas: " + puntosActuales + "/" + metaComida, 20, Gdx.graphics.getHeight() - 45);
+
         game.batch.end();
     }
     private void spawnComida() {
@@ -356,5 +355,10 @@ public class PantallaJuego implements Screen {
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-    @Override public void dispose() {}
+    @Override
+    public void dispose() {
+        if (font != null) font.dispose();
+        if (texMichi != null) texMichi.dispose();
+        if (texLana != null) texLana.dispose();
+    }
 }
