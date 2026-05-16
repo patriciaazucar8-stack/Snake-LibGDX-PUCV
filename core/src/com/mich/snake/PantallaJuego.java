@@ -46,10 +46,22 @@ public class PantallaJuego implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // 2. CONTROLES (Leer el teclado)
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) serpiente.setDireccion(Input.Keys.UP);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) serpiente.setDireccion(Input.Keys.DOWN);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) serpiente.setDireccion(Input.Keys.LEFT);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) serpiente.setDireccion(Input.Keys.RIGHT);
+     // 2. CONTROLES (Ahora con Flechas y WASD)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+            serpiente.setDireccion(Input.Keys.UP);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+            serpiente.setDireccion(Input.Keys.DOWN);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+            serpiente.setDireccion(Input.Keys.LEFT);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+            serpiente.setDireccion(Input.Keys.RIGHT);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            Gdx.app.exit(); // Esto cierra la ventana del juego inmediatamente
+        }
 
         // 3. LÓGICA DE TIEMPO Y MOVIMIENTO
         if (!esperandoSiguienteNivel) {
