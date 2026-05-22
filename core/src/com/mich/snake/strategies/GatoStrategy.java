@@ -16,7 +16,7 @@ public class GatoStrategy implements SkinStrategy {
                        pos.x * tam - offset, 
                        pos.y * tam - offset, 40, 40);
         } else {
-            // Lanas rosadas pequeñas
+            // Lanas rosadas pequeï¿½as
             batch.draw(RecursosJuego.getInstance().texLana, 
                        pos.x * tam + 2, 
                        pos.y * tam + 2, 16, 16);
@@ -30,11 +30,11 @@ public class GatoStrategy implements SkinStrategy {
 
     @Override
     public Color getColorBordes() {
-        return new Color(0.8f, 0.2f, 0.2f, 1); // Bordes rojos para el mundo gato
+        return new Color(0.76f, 0.745f, 0.745f, 1); // Bordes grises para que no desentone
     }
     @Override
     public Color getColorObstaculos() {
-        // Un café tierra/madera (R: 0.4, G: 0.2, B: 0.1)
+        // Un cafï¿½ tierra/madera (R: 0.4, G: 0.2, B: 0.1)
         return new Color(0.4f, 0.2f, 0.1f, 1);
     }
 }
