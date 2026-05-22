@@ -28,16 +28,18 @@ public class PantallaJuego implements Screen {
     int cantidadObstaculos = 3;
     BitmapFont font;
     private SkinStrategy skinActual;
-
-    public PantallaJuego(final SnakeGame game, String skin) {
+    
+    public PantallaJuego(final SnakeGame game, SkinStrategy estrategiaElegida) {
         this.game = game;
         reiniciarSerpiente();
-        this.tipoSkin = skin;
         comida = new Vector2(15, 15);
         font = new BitmapFont();
         font.getData().setScale(1.2f);
         obstaculos = new Array<>();
-        this.skinActual = new GatoStrategy();
+        
+        // Asignamos la estrategia que viene desde el menú
+        this.skinActual = estrategiaElegida;
+        
         generarObstaculos();
     }
     @Override
@@ -119,69 +121,44 @@ public class PantallaJuego implements Screen {
         } 
 
      // 4. DIBUJAR 
-       
-     // Creacion del fodo cuadriculado (no mover)
-//*******************************************************************************************************************
+        
+        // PASO A: Dibujar el fondo correspondiente con SpriteBatch según el animal (GM-7)
         game.batch.begin();
-        int celdasX = Gdx.graphics.getWidth() / TAM_CELDA;
-        int celdasY = Gdx.graphics.getHeight() / TAM_CELDA;
+        skinActual.dibujarFondo(game.batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), TAM_CELDA);
+        game.batch.end();
 
-        // Recorremos el interior del mapa (desde la celda 1 hasta la penÃºltima)
-        for (int x = 1; x < celdasX - 1; x += 2) {
-            for (int y = 1; y < celdasY - 1; y += 2) {
-                // El patrÃ³n cuadriculado matemÃ¡tico
-            	if (((x / 2) + (y / 2)) % 2 == 0) {
-            		game.batch.setColor(0.58f, 1f, 0.368f, 1f); // Verde claro
-                } else {
-                	game.batch.setColor(0.58f, 1f, 0.368f, 1f); // Verde oscuro
-                }
-                // Dibujamos el cuadrito gris teÃ±ido de verde
-                game.batch.draw(RecursosJuego.getInstance().texPasto, x * TAM_CELDA, y * TAM_CELDA, TAM_CELDA* 4, TAM_CELDA* 4);
-            }
-        }
-        // Devolvemos el color a la normalidad para no afectar a los demÃ¡s stickers
-        game.batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
-        game.batch.end(); // <-- Cerramos el bloque. El pasto ya quedÃ³ pintado en el fondo.
-//**********************************************************************************************************************
-
+        // PASO B: Dibujar los elementos geométricos (Obstáculos y Bordes)
         game.shape.begin(com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled);
-        //Obstaculos
+        
+        // Obstaculos
         game.shape.setColor(skinActual.getColorObstaculos()); 
         for (Vector2 obs : obstaculos) {
             game.shape.rect(obs.x * TAM_CELDA, obs.y * TAM_CELDA, TAM_CELDA, TAM_CELDA);
         }
 
-        //BORDES 
+        // Bordes 
         game.shape.setColor(skinActual.getColorBordes());
-
-        // Borde inferior
         game.shape.rect(0, 0, Gdx.graphics.getWidth(), BORDE);
-        // Borde superior
         game.shape.rect(0, Gdx.graphics.getHeight() - BORDE, Gdx.graphics.getWidth(), BORDE);
-        // Borde izquierdo
         game.shape.rect(0, 0, BORDE, Gdx.graphics.getHeight());
-        // Borde derecho
         game.shape.rect(Gdx.graphics.getWidth() - BORDE, 0, BORDE, Gdx.graphics.getHeight());
 
         game.shape.end();
         
-        
-     // 5. DIBUJO DE ELEMENTOS DEL JUEGO (Michi y HUD)
+        // 5. DIBUJO DE ELEMENTOS DEL JUEGO (Michi/Mascota y HUD)
         game.batch.begin();
         skinActual.dibujarComida(game.batch, comida, TAM_CELDA);
         for (int i = 0; i < serpiente.getCuerpo().size; i++) {
             skinActual.dibujarCuerpo(game.batch, serpiente.getCuerpo().get(i), TAM_CELDA, (i == 0));
         }
         
-        font.setColor(com.badlogic.gdx.graphics.Color.BLACK); //Cambiamos a negras las letras
+        font.setColor(com.badlogic.gdx.graphics.Color.BLACK); 
         float alturaHUD = Gdx.graphics.getHeight() - 7; 
         
-        // HUD: Nivel y Puntos
         font.draw(game.batch, "Nivel: " + nivelActual, TAM_CELDA, alturaHUD);
-        font.draw(game.batch, "Lanas: " + puntosActuales + "/" + metaComida, 535, alturaHUD);
+        font.draw(game.batch, skinActual.getNombreComida() + ": " + puntosActuales + "/" + metaComida, 510, alturaHUD);
         
-        font.setColor(com.badlogic.gdx.graphics.Color.WHITE); //Restauramos el color blanco
-
+        font.setColor(com.badlogic.gdx.graphics.Color.WHITE); 
         game.batch.end();
         
         
@@ -197,7 +174,7 @@ public class PantallaJuego implements Screen {
 
             // Textos de victoria
             game.batch.begin();
-            font.draw(game.batch, "ï¿½Pasaste al nivel " + (nivelActual + 1) + "!", 
+            font.draw(game.batch, "Pasaste al nivel " + (nivelActual + 1) + "!", 
                       Gdx.graphics.getWidth() / 2f - 120, Gdx.graphics.getHeight() / 2f + 40);
             font.draw(game.batch, "[ ENTER ] para continuar", 
                       Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f);
@@ -248,7 +225,7 @@ public class PantallaJuego implements Screen {
     	reiniciarSerpiente();
         puntosActuales = 0;
         nivelActual = 1;
-        metaComida = 3;         // <-- ï¿½IMPORTANTE! Volver al requisito del Nivel 1
+        metaComida = 3;         // <-- IMPORTANTE! Volver al requisito del Nivel 1
         cantidadObstaculos = 3; // <-- Volver a las 3 piedras iniciales
         generarObstaculos();
         spawnComida();

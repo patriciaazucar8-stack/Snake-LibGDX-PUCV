@@ -8,6 +8,8 @@ public interface SkinStrategy {
     // Definimos qué necesita hacer cualquier skin, sin decir CÓMO
     void dibujarCuerpo(SpriteBatch batch, Vector2 pos, float tam, boolean esCabeza);
     void dibujarComida(SpriteBatch batch, Vector2 pos, float tam);
+    void dibujarFondo(SpriteBatch batch, int anchoPantalla, int altoPantalla, int tamCelda);
     Color getColorBordes();
+    String getNombreComida();
     Color getColorObstaculos();
 }

@@ -20,9 +20,9 @@ public class PantallaMenu implements Screen {
         // Fondo un poco más "púrpura" para variar el menú
         Gdx.gl.glClearColor(0.2f, 0.1f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        
         game.batch.begin();
-        font.draw(game.batch, "MICHI-SNAKE: EL DESPERTAR", 100, 400);
+        font.draw(game.batch, "DOMESTIC-SNAKE", 200, 400); // Centrado según el largo del texto
         font.draw(game.batch, "Haz clic para empezar...", 150, 200);
         game.batch.end();
 

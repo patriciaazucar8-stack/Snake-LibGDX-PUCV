@@ -1,10 +1,12 @@
 package com.mich.snake;
-
+import com.mich.snake.strategies.SkinStrategy; // <-- AGREGA ESTE IMPORT
+import com.mich.snake.strategies.GatoStrategy;
+import com.mich.snake.strategies.PerroStrategy;
+import com.mich.snake.strategies.PezStrategy;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.Input;
 
 public class SelectorPantalla implements Screen {
@@ -23,30 +25,29 @@ public class SelectorPantalla implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        font.draw(game.batch, "ELIGE A TU MICHI", 220, 450);
-        font.draw(game.batch, "1. Gato Negro", 100, 300);
-        font.draw(game.batch, "2. Gato Tuxedo", 100, 200);
-        font.draw(game.batch, "3. Gato Naranjo", 100, 100);
+        // 1. ACTUALIZAMOS LOS TEXTOS PARA LAS NUEVAS MASCOTAS DOMÉSTICAS
+        font.draw(game.batch, "ELIGE A TU MASCOTA", 200, 450);
+        font.draw(game.batch, "1. Gato", 100, 300);
+        font.draw(game.batch, "2. Perro", 100, 200);
+        font.draw(game.batch, "3. Pez", 100, 100);
         game.batch.end();
 
-        // Lógica de selección con teclado por ahora (luego será con clics en caritas)
+        // 2. CONECTAMOS LAS TECLAS CON SUS ESTRATEGIAS CORRESPONDIENTES
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.NUM_1)) {
-            // Aquí iría el miau del negro
-            empezarJuego("NEGRO");
+            empezarJuego(new GatoStrategy());
         }
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.NUM_2)) {
-            // Aquí iría el miau del tuxedo
-            empezarJuego("TUXEDO");
+            empezarJuego(new PerroStrategy());
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-            empezarJuego("NARANJO");
+            empezarJuego(new PezStrategy());
         }
     }
 
-    private void empezarJuego(String skin) {
-        // Por ahora solo saltamos al juego, 
-        // pronto le pasaremos la skin a la PantallaJuego
-    	game.setScreen(new PantallaJuego(game, skin)); // <-- ¡Le pasamos la skin elegida!
+    // 3. CAMBIAMOS EL MÉTODO PARA QUE RECIBA LA INTERFAZ SKINSTRATEGY
+    private void empezarJuego(SkinStrategy estrategiaElegida) {
+        // Le pasamos el objeto concreto (gato, perro o pez) a la PantallaJuego
+        game.setScreen(new PantallaJuego(game, estrategiaElegida)); 
         dispose();
     }
 
