@@ -26,10 +26,9 @@ public class PerroStrategy implements SkinStrategy {
     public Color getColorObstaculos() {
         return new Color(0.5f, 0.25f, 0f, 1); // Piedras color tierra oscura
     }
-
     @Override
     public Color getColorBordes() {
-        return new Color(0.1f, 0.5f, 0.8f, 1); // Bordes azules para el perro
+        return new Color(0.76f, 0.745f, 0.745f, 1); // Bordes grises para que no desentone
     }
     @Override
     public void dibujarFondo(SpriteBatch batch, int anchoPantalla, int altoPantalla, int tamCelda) {

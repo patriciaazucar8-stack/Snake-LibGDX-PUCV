@@ -27,8 +27,8 @@ public class PezStrategy implements SkinStrategy {
 
     @Override
     public Color getColorObstaculos() {
-        // Piedras gris oscuro/volcánicas de acuario
-        return new Color(0.2f, 0.25f, 0.3f, 1);
+        // Un verde encendido que resalta en el agua
+        return new Color(0.12f, 0.65f, 0.35f, 1f); 
     }
 
     @Override
@@ -44,11 +44,12 @@ public class PezStrategy implements SkinStrategy {
         for (int x = 1; x < celdasX - 1; x += 2) {
             for (int y = 1; y < celdasY - 1; y += 2) {
                 if (((x / 2) + (y / 2)) % 2 == 0) {
-                    batch.setColor(0.2f, 0.6f, 0.9f, 1f); // Azul agua claro
+                    // Celeste agua cristalina ultra claro y brillante
+                    batch.setColor(0.65f, 0.92f, 1.0f, 1f); 
                 } else {
-                    batch.setColor(0.1f, 0.4f, 0.7f, 1f); // Azul oceánico oscuro
+                    // Un turquesa pastel claro para el tablero
+                    batch.setColor(0.55f, 0.85f, 0.95f, 1f); 
                 }
-                // Puedes usar texPasto o un texAgua si lo agregas al Singleton
                 batch.draw(RecursosJuego.getInstance().texPasto, x * tamCelda, y * tamCelda, tamCelda * 4, tamCelda * 4);
             }
         }
