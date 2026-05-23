@@ -22,7 +22,7 @@ public class PantallaMenu implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         game.batch.begin();
-        font.draw(game.batch, "DOMESTIC-SNAKE", 200, 400); // Centrado según el largo del texto
+        font.draw(game.batch, "DOMESTIC-SNAKE", 170, 400); // Centrado según el largo del texto
         font.draw(game.batch, "Haz clic para empezar...", 150, 200);
         game.batch.end();
 

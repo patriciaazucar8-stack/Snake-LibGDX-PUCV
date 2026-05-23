@@ -1,5 +1,6 @@
 package com.mich.snake;
-import com.mich.snake.strategies.SkinStrategy; // <-- AGREGA ESTE IMPORT
+
+import com.mich.snake.strategies.SkinStrategy;
 import com.mich.snake.strategies.GatoStrategy;
 import com.mich.snake.strategies.PerroStrategy;
 import com.mich.snake.strategies.PezStrategy;
@@ -21,22 +22,37 @@ public class SelectorPantalla implements Screen {
 
     @Override
     public void render(float delta) {
+        // Fondo oscuro para que resalten los personajes
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        // 1. ACTUALIZAMOS LOS TEXTOS PARA LAS NUEVAS MASCOTAS DOMÉSTICAS
-        font.draw(game.batch, "ELIGE A TU MASCOTA", 200, 450);
-        font.draw(game.batch, "1. Gato", 100, 300);
-        font.draw(game.batch, "2. Perro", 100, 200);
-        font.draw(game.batch, "3. Pez", 100, 100);
+        
+        // Título de la pantalla
+        font.draw(game.batch, "ELIGE A TU MASCOTA", 200, 410);
+
+        // ¡AQUÍ OCURRE LA MAGIA! Dibujamos los sprites reales en fila usando el Singleton
+        // Cada imagen la dibujamos de un tamaño de 64x64 pixeles para que se vean grandes y claras
+        
+        // 1. Gato (Izquierda) + su etiqueta
+        game.batch.draw(RecursosJuego.getInstance().texMichi, 150, 220, 64, 64);
+        font.draw(game.batch, "[ 1 ] Gato", 130, 190);
+
+        // 2. Perro (Centro) + su etiqueta
+        game.batch.draw(RecursosJuego.getInstance().texPerro, 290, 220, 64, 64);
+        font.draw(game.batch, "[ 2 ] Perro", 280, 190);
+
+        // 3. Pez (Derecha) + su etiqueta
+        game.batch.draw(RecursosJuego.getInstance().texPez, 430, 220, 64, 64);
+        font.draw(game.batch, "[ 3 ] Pez", 420, 190);
+
         game.batch.end();
 
-        // 2. CONECTAMOS LAS TECLAS CON SUS ESTRATEGIAS CORRESPONDIENTES
-        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.NUM_1)) {
+        // La lógica de teclado sigue funcionando exactamente igual de impecable
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
             empezarJuego(new GatoStrategy());
         }
-        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.NUM_2)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
             empezarJuego(new PerroStrategy());
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
@@ -44,9 +60,7 @@ public class SelectorPantalla implements Screen {
         }
     }
 
-    // 3. CAMBIAMOS EL MÉTODO PARA QUE RECIBA LA INTERFAZ SKINSTRATEGY
     private void empezarJuego(SkinStrategy estrategiaElegida) {
-        // Le pasamos el objeto concreto (gato, perro o pez) a la PantallaJuego
         game.setScreen(new PantallaJuego(game, estrategiaElegida)); 
         dispose();
     }
