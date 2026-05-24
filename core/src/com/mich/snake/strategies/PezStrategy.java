@@ -33,7 +33,7 @@ public class PezStrategy implements SkinStrategy {
 
     @Override
     public Color getColorBordes() {
-        // Un azul calipso/neón hermoso para simular el agua/pecera
+        // Un azul calipso/neón para simular el agua/pecera
         return new Color(0.0f, 0.7f, 0.9f, 1);
     }
     @Override

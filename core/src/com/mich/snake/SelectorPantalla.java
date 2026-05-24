@@ -31,7 +31,6 @@ public class SelectorPantalla implements Screen {
         // Título de la pantalla
         font.draw(game.batch, "ELIGE A TU MASCOTA", 200, 410);
 
-        // ¡AQUÍ OCURRE LA MAGIA! Dibujamos los sprites reales en fila usando el Singleton
         // Cada imagen la dibujamos de un tamaño de 64x64 pixeles para que se vean grandes y claras
         
         // 1. Gato (Izquierda) + su etiqueta
@@ -48,7 +47,7 @@ public class SelectorPantalla implements Screen {
 
         game.batch.end();
 
-        // La lógica de teclado sigue funcionando exactamente igual de impecable
+        // La lógica de teclado 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
             empezarJuego(new GatoStrategy());
         }
