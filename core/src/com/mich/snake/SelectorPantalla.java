@@ -19,7 +19,7 @@ public class SelectorPantalla implements Screen {
         font = new BitmapFont();
         font.getData().setScale(1.5f);
     }
-
+    
     @Override
     public void render(float delta) {
         // Fondo oscuro para que resalten los personajes
@@ -27,6 +27,11 @@ public class SelectorPantalla implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
+        
+        // --- RESETEAR FUENTE PARA EL TÍTULO Y TEXTOS (Evita que se queden amarillos y chicos) ---
+        font.setColor(com.badlogic.gdx.graphics.Color.WHITE);
+        font.getData().setScale(1.5f);
+        // ---------------------------------------------------------------------------------------
         
         // Título de la pantalla
         font.draw(game.batch, "ELIGE A TU MASCOTA", 200, 410);
@@ -45,6 +50,16 @@ public class SelectorPantalla implements Screen {
         game.batch.draw(RecursosJuego.getInstance().texPez, 430, 220, 64, 64);
         font.draw(game.batch, "[ 3 ] Pez", 420, 190);
 
+        // -------------------------------------------------------------
+        // INDICACIÓN DE CONTROLES (Abajo en el centro)
+        // -------------------------------------------------------------
+        font.setColor(com.badlogic.gdx.graphics.Color.YELLOW); 
+        font.getData().setScale(1.0f); 
+        
+        String instruccionSeleccion = "Selecciona tu mascota usando los numeros 1, 2 o 3";
+        
+        // Lo centramos en la parte inferior
+        font.draw(game.batch, instruccionSeleccion, Gdx.graphics.getWidth() / 2f - 200, 50);
         game.batch.end();
 
         // La lógica de teclado 
