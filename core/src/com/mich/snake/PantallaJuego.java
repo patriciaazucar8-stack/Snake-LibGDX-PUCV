@@ -13,21 +13,23 @@ public class PantallaJuego implements Screen {
     private static final int TAM_CELDA = 20;
     private static final int BORDE = 20;
     boolean esperandoSiguienteNivel = false;
-    final SnakeGame game; // Referencia al "Director"
+    final SnakeGame game; 
     Serpiente serpiente;
     Comida comida;
-    float velocidadJuego = 0.15f;
+    float velocidadJuego;
     float timer = 0;
     String tipoSkin;
     Array<Obstaculo> obstaculos;
     int nivelActual = 1;
     int puntosActuales = 0;
     int metaComida = 3; // Cuantas debe comer para pasar de nivel
-    int cantidadObstaculos = 3;
+    int cantidadObstaculos = 3; // cantidad de obstaculos inicial
     BitmapFont font;
     private SkinStrategy skinActual;
     
-    public PantallaJuego(final SnakeGame game, SkinStrategy estrategiaElegida) {
+    private String nombreDificultad;
+    
+    public PantallaJuego(final SnakeGame game, Partida config) {
         this.game = game;
         reiniciarSerpiente();
         comida = new Comida(15, 15);
@@ -35,8 +37,11 @@ public class PantallaJuego implements Screen {
         font.getData().setScale(1.2f);
         obstaculos = new Array<>();
         
-        // Asignamos la estrategia que viene desde el menú
-        this.skinActual = estrategiaElegida;
+        // Extraemos los datos del builder
+        this.skinActual = config.getSkinMascota();
+        // Convertimos los milisegundos del Builder (80, 140, 200) a floats (0.08f, 0.14f, 0.20f)
+        this.velocidadJuego = config.getVelocidad() / 1000f; 
+        this.nombreDificultad = config.getDificultadNombre();
         
         generarObstaculos();
     }
@@ -71,18 +76,24 @@ public class PantallaJuego implements Screen {
             if(timer > velocidadJuego) {
                 timer = 0;
             
-                // 1. Calculamos si comió usando .getPosicion() de la clase abstracta
+                // Calculamos si comió usando .getPosicion() de la clase abstracta
                 boolean comio = (serpiente.getCabeza().x == comida.getPosicion().x && serpiente.getCabeza().y == comida.getPosicion().y);
                 
-                // 2. Si comió, delegamos de forma polimórfica (Suma puntos, spawnea y revisa nivel)
+                // Si comió, delegamos de forma polimórfica (Suma puntos, spawnea y revisa nivel)
                 if(comio) {
                     comida.alColisionar(this);
+                    if (nombreDificultad.equals("DIFICIL")) {
+                        puntosActuales += 1;
+                    }
+                    if (puntosActuales >= metaComida) {
+                        esperandoSiguienteNivel = true;
+                    }
                 }
             
-            // PRIMERO: Movemos al animal
+            // Movemos al animal
             	serpiente.mover(comio);
             
-            // SEGUNDO: Revisamos colision con bordes 
+            // Revisamos colision con bordes 
             	int maxX = Gdx.graphics.getWidth() / TAM_CELDA;
             	int maxY = Gdx.graphics.getHeight() / TAM_CELDA;
 
@@ -95,16 +106,16 @@ public class PantallaJuego implements Screen {
             		reiniciarJuego();
             	}
             	
-            	for (Obstaculo obs : obstaculos) { // <-- Cambiado de Vector2 a Obstaculo
-                    // Comparamos la posición de la cabeza RECIÉN MOVIDA con la piedra usando .getPosicion()
+            	for (Obstaculo obs : obstaculos) { 
+                    // Comparamos la posición de la cabeza recien movida con la piedra usando .getPosicion()
                     if (serpiente.getCabeza().x == obs.getPosicion().x && serpiente.getCabeza().y == obs.getPosicion().y) {
-                        // ¡Polimorfismo en acción! El obstáculo sabe que debe reiniciar el juego
+                        // Se debe reiniciar el juego
                         obs.alColisionar(this); 
                         break;
                     }
                 }
             
-            // CUARTO: Revisar si mordio los objetos recolectados (Solo si tiene)
+            // Revisar si mordio los objetos recolectados (Solo si tiene)
             	for (int i = 1; i < serpiente.getCuerpo().size; i++) {
             		Vector2 parte = serpiente.getCuerpo().get(i);
             		if (serpiente.getCabeza().x == parte.x && serpiente.getCabeza().y == parte.y) {
@@ -117,12 +128,12 @@ public class PantallaJuego implements Screen {
 
      // 4. DIBUJAR 
         
-        // PASO A: Dibujar el fondo correspondiente con SpriteBatch según el animal (GM-7)
+        // Dibujar el fondo correspondiente con SpriteBatch según el animal 
         game.batch.begin();
         skinActual.dibujarFondo(game.batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), TAM_CELDA);
         game.batch.end();
 
-        // PASO B: Dibujar los elementos geométricos (Obstáculos y Bordes)
+        // Dibujar los elementos geométricos (Obstáculos y Bordes)
         game.shape.begin(com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled);
         
         game.shape.setColor(skinActual.getColorObstaculos()); 
@@ -140,7 +151,7 @@ public class PantallaJuego implements Screen {
 
         game.shape.end();
         
-        // 5. DIBUJO DE ELEMENTOS DEL JUEGO (Michi/Mascota y HUD)
+     // 5. DIBUJO DE ELEMENTOS DEL JUEGO (Mascota, comida y HUD)
         game.batch.begin();
         skinActual.dibujarComida(game.batch, comida.getPosicion(), TAM_CELDA);
         
@@ -149,7 +160,7 @@ public class PantallaJuego implements Screen {
         }
         
         font.setColor(com.badlogic.gdx.graphics.Color.BLACK); 
-        float alturaHUD = Gdx.graphics.getHeight() - 7; 
+        float alturaHUD = Gdx.graphics.getHeight() - 6; 
         
         font.draw(game.batch, "Nivel: " + nivelActual, TAM_CELDA, alturaHUD);
         font.draw(game.batch, skinActual.getNombreComida() + ": " + puntosActuales + "/" + metaComida, 510, alturaHUD);
@@ -163,15 +174,22 @@ public class PantallaJuego implements Screen {
             // Dibujamos el rectangulo de pausa oscuro
             Gdx.gl.glEnable(GL20.GL_BLEND);
             game.shape.begin(ShapeRenderer.ShapeType.Filled);
-            game.shape.setColor(0, 0, 0, 0.7f); // Un poco mas oscuro (0.7f)
+            game.shape.setColor(0, 0, 0, 0.7f); 
             game.shape.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             game.shape.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
-
+            
+         // MENSAJES PERSONALIZADOS SEGÚN LA DIFICULTAD
+            String mensajeVictoria = "¡Bien hecho! Sigue así"; 
+            if (nombreDificultad.equals("DIFICIL")) {
+                mensajeVictoria = "¡Sobreviviste al nivel! Eres una máquina";
+            } else if (nombreDificultad.equals("MEDIO")) {
+                mensajeVictoria = "¡Buen ritmo! No te rindas";
+            }
             // Textos de victoria
             game.batch.begin();
-            font.draw(game.batch, "Pasaste al nivel " + (nivelActual + 1) + "!", 
-                      Gdx.graphics.getWidth() / 2f - 120, Gdx.graphics.getHeight() / 2f + 40);
+            font.draw(game.batch, mensajeVictoria, 
+                      Gdx.graphics.getWidth() / 2f - 180, Gdx.graphics.getHeight() / 2f + 40); 
             font.draw(game.batch, "[ ENTER ] para continuar", 
                       Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f);
             game.batch.end();
@@ -194,7 +212,7 @@ public class PantallaJuego implements Screen {
             int x = (int)(Math.random() * (maxCeldasX - 2)) + 1;
             int y = (int)(Math.random() * (maxCeldasY - 2)) + 1;
 
-            // 1. Revisar cuerpo de la mascota
+            // Revisar cuerpo de la mascota
             for (Vector2 parte : serpiente.getCuerpo()) {
                 if (parte.x == x && parte.y == y) {
                     posicionValida = false;
@@ -202,7 +220,7 @@ public class PantallaJuego implements Screen {
                 }
             }
 
-            // 2. Revisar obstáculos (Cambiado de Vector2 a Obstaculo, usando .getPosicion())
+            // Revisar obstáculos
             for (Obstaculo obs : obstaculos) {
                 if (obs.getPosicion().x == x && obs.getPosicion().y == y) {
                     posicionValida = false;
@@ -210,7 +228,7 @@ public class PantallaJuego implements Screen {
                 }
             }
 
-            // 3. Si la posición es libre, actualizamos la coordenada de la comida
+            // Si la posición es libre, actualizamos la coordenada de la comida
             if (posicionValida) {
                 comida.setPosicion(x, y);
             }
@@ -247,12 +265,12 @@ public class PantallaJuego implements Screen {
 
                 boolean ocupado = false;
 
-                // 1. Revisar comida (Usando .getPosicion())
+                // Revisar comida (Usando .getPosicion())
                 if (x == comida.getPosicion().x && y == comida.getPosicion().y) {
                     ocupado = true;
                 }
 
-                // 2. Revisar cuerpo completo de la mascota
+                // Revisar cuerpo completo de la mascota
                 for (Vector2 parte : serpiente.getCuerpo()) {
                     if (parte.x == x && parte.y == y) {
                         ocupado = true;
@@ -260,7 +278,7 @@ public class PantallaJuego implements Screen {
                     }
                 }
 
-                // 3. Revisar bordes
+                // Revisar bordes
                 if (x <= 0 || x >= maxCeldasX - 1 ||
                     y <= 0 || y >= maxCeldasY - 1) {
                     ocupado = true;
@@ -270,7 +288,7 @@ public class PantallaJuego implements Screen {
                     continue;
                 }
 
-                // 4. Revisar si el obstáculo ya existe (Cambiado a Obstaculo y usando .getPosicion())
+                // Revisar si el obstáculo ya existe 
                 boolean yaExiste = false;
                 for (Obstaculo obs : obstaculos) {
                     if (obs.getPosicion().x == x && obs.getPosicion().y == y) {
@@ -279,7 +297,7 @@ public class PantallaJuego implements Screen {
                     }
                 }
 
-                // 5.Instanciamos nuestra clase hija
+                // Instanciamos nuestra clase hija
                 if (!yaExiste) {
                     obstaculos.add(new Obstaculo((int)x, (int)y));
                 }
@@ -306,7 +324,7 @@ public class PantallaJuego implements Screen {
         serpiente = new Serpiente(centroX, centroY);
     }
     
-    // Estos metodos son obligatorios por la interfaz Screen, pero pueden estar vacios por ahora
+    // Estos metodos son obligatorios por la interfaz Screen
     @Override
     public void show() {
         // Esto le dice al juego: "Oye, ahora pesca el teclado en esta pantalla"

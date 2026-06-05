@@ -15,6 +15,6 @@ public abstract class ObjetoMapa {
         return posicion;
     }
 
-    // El "Contrato": Cada objeto define su propia consecuencia al ser tocado
+    // Cada objeto define su propia consecuencia al ser tocado
     public abstract void alColisionar(PantallaJuego juego);
 }

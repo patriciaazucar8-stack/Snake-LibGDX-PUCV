@@ -18,7 +18,7 @@ public class PantallaMenu implements Screen {
     
     @Override
     public void render(float delta) {
-        // Fondo un poco más "púrpura" para variar el menú
+        // Fondo color purpura 
         Gdx.gl.glClearColor(0.2f, 0.1f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
@@ -29,26 +29,17 @@ public class PantallaMenu implements Screen {
         font.getData().setScale(2.0f);
         // ----------------------------------------
         
-        font.draw(game.batch, "DOMESTIC-SNAKE", 170, 400); // Centrado según el largo del texto
+        font.draw(game.batch, "DOMESTIC-SNAKE", 170, 400); 
         font.draw(game.batch, "Haz clic para empezar...", 150, 200);
         
-        // Instrucciones
-        font.setColor(com.badlogic.gdx.graphics.Color.YELLOW); // Un gris suave 
-        font.getData().setScale(0.9f); // Un tamaño sutil
-        
-        String controles = "Controles: Muevete con WASD o las flechas del teclado";
-        String salirMenu = "[ESC] para salir del juego";
-        
-        font.draw(game.batch, controles, 30, 70);
-        font.draw(game.batch, salirMenu, 30, 45);
         game.batch.end();
 
-        // Si el usuario presiona ESCAPE, cerramos el juego inmediatamente
+        // Si el usuario presiona ESCAPE, se cierra el juego inmediatamente
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
 
-        // Si el usuario hace clic o toca la pantalla...
+        // Si el usuario hace clic o toca la pantalla empieza el juego
         if (Gdx.input.isTouched()) {
             game.setScreen(new SelectorPantalla(game)); 
             dispose(); 

@@ -8,7 +8,7 @@ public class Obstaculo extends ObjetoMapa {
 
     @Override
     public void alColisionar(PantallaJuego juego) {
-        // Lógica polimórfica: Si chocas un obstáculo, mueres
+        // Si chocas un obstáculo, mueres
         juego.reiniciarJuego();
     }
 }

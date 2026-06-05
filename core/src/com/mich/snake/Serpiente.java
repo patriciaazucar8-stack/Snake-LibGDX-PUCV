@@ -29,7 +29,6 @@ public class Serpiente {
         }
     }
 
-    // Getters y Setters
  // Getters y Setters
     public Vector2 getCabeza() { 
         return cuerpo.first(); 

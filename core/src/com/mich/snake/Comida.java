@@ -8,7 +8,7 @@ public class Comida extends ObjetoMapa {
 
     @Override
     public void alColisionar(PantallaJuego juego) {
-        // Lógica polimórfica: Si la mascota come, suma puntos y reubica la comida
+        // Si la mascota come, suma puntos y reubica la comida
         juego.puntosActuales++;
         juego.spawnComida();
         

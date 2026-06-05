@@ -10,13 +10,13 @@ public class GatoStrategy implements SkinStrategy {
     @Override
     public void dibujarCuerpo(SpriteBatch batch, Vector2 pos, float tam, boolean esCabeza) {
         if (esCabeza) {
-            // Efecto Godzilla centrado (40px)
+            // Imagen (40px)
             float offset = (40 - tam) / 2f; 
             batch.draw(RecursosJuego.getInstance().texMichi, 
                        pos.x * tam - offset, 
                        pos.y * tam - offset, 40, 40);
         } else {
-            // Lanas rosadas peque�as
+            // Lanas rosadas pequenias
             batch.draw(RecursosJuego.getInstance().texLana, 
                        pos.x * tam + 2, 
                        pos.y * tam + 2, 16, 16);
@@ -34,7 +34,7 @@ public class GatoStrategy implements SkinStrategy {
     }
     @Override
     public Color getColorObstaculos() {
-        // Un caf� tierra/madera (R: 0.4, G: 0.2, B: 0.1)
+        // Color cafe (R: 0.4, G: 0.2, B: 0.1)
         return new Color(0.4f, 0.2f, 0.1f, 1);
     }
     @Override

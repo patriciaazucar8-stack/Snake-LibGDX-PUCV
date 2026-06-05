@@ -27,5 +27,9 @@ public class RecursosJuego {
         if (texMichi != null) texMichi.dispose();
         if (texLana != null) texLana.dispose();
         if (texPasto != null) texPasto.dispose();
+        if (texPerro != null) texPerro.dispose();
+        if (texHueso != null) texHueso.dispose();
+        if (texPez != null) texPez.dispose();
+        if (texConcha != null) texConcha.dispose();
     }
 }

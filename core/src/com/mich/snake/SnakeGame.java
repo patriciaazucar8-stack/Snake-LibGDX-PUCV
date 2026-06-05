@@ -13,13 +13,13 @@ public class SnakeGame extends Game {
             shape = new ShapeRenderer();
             batch = new SpriteBatch();
             
-            // ¡Ahora sí! Iniciamos en el menú
+            //Iniciamos en el menú
             this.setScreen(new PantallaMenu(this));
     }
 
     @Override
     public void render() {
-        // Súper importante: llamar al render del Game para que dibuje la pantalla activa
+        // Llamamos al render del Game para que dibuje la pantalla activa
         super.render();
     }
 

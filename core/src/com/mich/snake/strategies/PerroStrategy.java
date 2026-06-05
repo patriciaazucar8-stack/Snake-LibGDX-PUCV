@@ -24,7 +24,7 @@ public class PerroStrategy implements SkinStrategy {
 
     @Override
     public Color getColorObstaculos() {
-        return new Color(0.5f, 0.25f, 0f, 1); // Piedras color tierra oscura
+        return new Color(0.5f, 0.25f, 0f, 1); // Piedras color cafe
     }
     @Override
     public Color getColorBordes() {
