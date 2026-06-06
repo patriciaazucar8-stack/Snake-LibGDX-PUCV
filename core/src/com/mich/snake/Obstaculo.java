@@ -8,7 +8,7 @@ public class Obstaculo extends ObjetoMapa {
 
     @Override
     public void alColisionar(PantallaJuego juego) {
-        // Si chocas un obstáculo, mueres
-        juego.reiniciarJuego();
+        // Si chocas un obstï¿½culo, mueres
+        juego.activarGameOver();
     }
 }

@@ -13,6 +13,10 @@ public class PantallaJuego implements Screen {
     private static final int TAM_CELDA = 20;
     private static final int BORDE = 20;
     boolean esperandoSiguienteNivel = false;
+    boolean juegoTerminado = false;         // Controla si el jugador muriÃ³
+    float puntajeFinalCalculado = 0;       // El puntaje total sumando niveles y % de objetos
+    float puntajeAnimado = 0;              // El contador dinÃ¡mico que va a ir subiendo en pantalla
+    boolean registroCompletado = false;    // Para saber cuÃ¡ndo pasar a la Leaderboard
     final SnakeGame game; 
     Serpiente serpiente;
     Comida comida;
@@ -43,8 +47,16 @@ public class PantallaJuego implements Screen {
         this.velocidadJuego = config.getVelocidad() / 1000f; 
         this.nombreDificultad = config.getDificultadNombre();
         
+        if (nombreDificultad.equals("DIFICIL")) {
+            this.metaComida = 4; // Inicial par para que calce con los saltos de +2
+        } else {
+            this.metaComida = 3; // Inicial estÃ¡ndar para FÃ¡cil y Medio (saltos de +1)
+        }
+        
         generarObstaculos();
     }
+    
+    
     @Override
     public void render(float delta) {
         // 1. LIMPIAR PANTALLA
@@ -52,34 +64,35 @@ public class PantallaJuego implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
      // 2. CONTROLES (Flechas y WASD)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-            serpiente.setDireccion(Input.Keys.UP);
+        if (!juegoTerminado) {
+	        if (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+	            serpiente.setDireccion(Input.Keys.UP);
+	        }
+	        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+	            serpiente.setDireccion(Input.Keys.DOWN);
+	        }
+	        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+	            serpiente.setDireccion(Input.Keys.LEFT);
+	        }
+	        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+	            serpiente.setDireccion(Input.Keys.RIGHT);
+	        }
+	        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+	            Gdx.app.exit(); // Esto cierra la ventana del juego inmediatamente
+	        }
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.S)) {
-            serpiente.setDireccion(Input.Keys.DOWN);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-            serpiente.setDireccion(Input.Keys.LEFT);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-            serpiente.setDireccion(Input.Keys.RIGHT);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit(); // Esto cierra la ventana del juego inmediatamente
-        }
-
         // 3. LOGICA DE TIEMPO Y MOVIMIENTO
-        if (!esperandoSiguienteNivel) {
+        if (!esperandoSiguienteNivel && !juegoTerminado) {
 
             timer += delta;
 
             if(timer > velocidadJuego) {
                 timer = 0;
             
-                // Calculamos si comió usando .getPosicion() de la clase abstracta
+                // Calculamos si comiÃ³ usando .getPosicion() de la clase abstracta
                 boolean comio = (serpiente.getCabeza().x == comida.getPosicion().x && serpiente.getCabeza().y == comida.getPosicion().y);
                 
-                // Si comió, delegamos de forma polimórfica (Suma puntos, spawnea y revisa nivel)
+                // Si comiÃ³, delegamos de forma polimÃ³rfica (Suma puntos, spawnea y revisa nivel)
                 if(comio) {
                     comida.alColisionar(this);
                     if (nombreDificultad.equals("DIFICIL")) {
@@ -100,14 +113,12 @@ public class PantallaJuego implements Screen {
             	float x = serpiente.getCabeza().x;
             	float y = serpiente.getCabeza().y;
 
-            	if (x <= 0 || x >= maxX - 1 ||
-            			y <= 0 || y >= maxY - 1) {
-
-            		reiniciarJuego();
+            	if (x <= 0 || x >= maxX - 1 || y <= 0 || y >= maxY - 1) {
+            		activarGameOver();
             	}
             	
             	for (Obstaculo obs : obstaculos) { 
-                    // Comparamos la posición de la cabeza recien movida con la piedra usando .getPosicion()
+                    // Comparamos la posiciÃ³n de la cabeza recien movida con la piedra usando .getPosicion()
                     if (serpiente.getCabeza().x == obs.getPosicion().x && serpiente.getCabeza().y == obs.getPosicion().y) {
                         // Se debe reiniciar el juego
                         obs.alColisionar(this); 
@@ -119,7 +130,7 @@ public class PantallaJuego implements Screen {
             	for (int i = 1; i < serpiente.getCuerpo().size; i++) {
             		Vector2 parte = serpiente.getCuerpo().get(i);
             		if (serpiente.getCabeza().x == parte.x && serpiente.getCabeza().y == parte.y) {
-            			reiniciarJuego();
+            			activarGameOver();
             			break;
             		}
             	}
@@ -128,17 +139,17 @@ public class PantallaJuego implements Screen {
 
      // 4. DIBUJAR 
         
-        // Dibujar el fondo correspondiente con SpriteBatch según el animal 
+        // Dibujar el fondo correspondiente con SpriteBatch segun el animal 
         game.batch.begin();
         skinActual.dibujarFondo(game.batch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), TAM_CELDA);
         game.batch.end();
 
-        // Dibujar los elementos geométricos (Obstáculos y Bordes)
+        // Dibujar los elementos geometricos (Obstaculos y Bordes)
         game.shape.begin(com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled);
         
         game.shape.setColor(skinActual.getColorObstaculos()); 
         for (Obstaculo obs : obstaculos) { 
-            // Le pedimos la coordenada x e y a la posición que heredó del padre
+            // Le pedimos la coordenada x e y a la posiciÃ³n que hereda del padre
             game.shape.rect(obs.getPosicion().x * TAM_CELDA, obs.getPosicion().y * TAM_CELDA, TAM_CELDA, TAM_CELDA);
         }
 
@@ -179,12 +190,12 @@ public class PantallaJuego implements Screen {
             game.shape.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
             
-         // MENSAJES PERSONALIZADOS SEGÚN LA DIFICULTAD
-            String mensajeVictoria = "¡Bien hecho! Sigue así"; 
+         // MENSAJES PERSONALIZADOS SEGï¿½N LA DIFICULTAD
+            String mensajeVictoria = "Â¡Bien hecho! Sigue asÃ­"; 
             if (nombreDificultad.equals("DIFICIL")) {
-                mensajeVictoria = "¡Sobreviviste al nivel! Eres una máquina";
+                mensajeVictoria = "Â¡Sobreviviste al nivel! Eres una maquina";
             } else if (nombreDificultad.equals("MEDIO")) {
-                mensajeVictoria = "¡Buen ritmo! No te rindas";
+                mensajeVictoria = "Â¡Buen ritmo! No te rindas";
             }
             // Textos de victoria
             game.batch.begin();
@@ -197,6 +208,47 @@ public class PantallaJuego implements Screen {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 iniciarSiguienteNivel();
             }
+        }
+        if (juegoTerminado) {
+        	Gdx.gl.glEnable(GL20.GL_BLEND);
+        	Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        	
+        	game.shape.begin(ShapeRenderer.ShapeType.Filled);
+        	game.shape.setColor(0f, 0f, 0f, 0.75f);
+        	game.shape.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        	game.shape.end();
+        	Gdx.gl.glDisable(GL20.GL_BLEND);
+        	
+        	// Subida de puntaje animado por frame
+        	if(puntajeAnimado < puntajeFinalCalculado) {
+        		puntajeAnimado += 2;
+        		if(puntajeAnimado > puntajeFinalCalculado) {
+        			puntajeAnimado = puntajeFinalCalculado;
+        		}
+        	}
+        	
+        	game.batch.begin();
+        	font.setColor(com.badlogic.gdx.graphics.Color.RED);
+        	font.getData().setScale(2f);
+        	font.draw(game.batch, "Â¡MASCOTA DEBILITADA!", Gdx.graphics.getWidth() / 2f - 180, Gdx.graphics.getHeight() / 2f + 80);
+        	
+        	font.setColor(com.badlogic.gdx.graphics.Color.WHITE);
+        	font.getData().setScale(1.3f);
+        	// Mostrar la dificultad
+        	font.draw(game.batch, "Dificultad: " + nombreDificultad, Gdx.graphics.getWidth() / 2f - 90, Gdx.graphics.getHeight() / 2f + 20);
+        	// Mostrar puntaje animado (Casteado)
+        	font.draw(game.batch, "Puntaje Obtenido: " + (int)puntajeAnimado, Gdx.graphics.getWidth() / 2f - 110, Gdx.graphics.getHeight() / 2f - 20);
+        	
+        	if(puntajeAnimado == puntajeFinalCalculado) {
+        		font.setColor(com.badlogic.gdx.graphics.Color.YELLOW);
+        		font.draw(game.batch, "Presiona [ ENTER ] para continuar", Gdx.graphics.getWidth() / 2f - 170, Gdx.graphics.getHeight() / 2f - 80);
+        		
+        		if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+        			game.setScreen(new PantallaLeaderboard(game, (int)puntajeFinalCalculado, nombreDificultad));
+        			dispose();
+        		}
+        	}
+        	game.batch.end();
         }
     }
     
@@ -220,7 +272,7 @@ public class PantallaJuego implements Screen {
                 }
             }
 
-            // Revisar obstáculos
+            // Revisar obstaculos
             for (Obstaculo obs : obstaculos) {
                 if (obs.getPosicion().x == x && obs.getPosicion().y == y) {
                     posicionValida = false;
@@ -228,7 +280,7 @@ public class PantallaJuego implements Screen {
                 }
             }
 
-            // Si la posición es libre, actualizamos la coordenada de la comida
+            // Si la posiciÃ³n es libre, actualizamos la coordenada de la comida
             if (posicionValida) {
                 comida.setPosicion(x, y);
             }
@@ -236,14 +288,33 @@ public class PantallaJuego implements Screen {
     }
     
    public void reiniciarJuego() {
-    	reiniciarSerpiente();
-        puntosActuales = 0;
-        nivelActual = 1;
-        metaComida = 3;         // <-- IMPORTANTE! Volver al requisito del Nivel 1
-        cantidadObstaculos = 3; // <-- Volver a las 3 piedras iniciales
-        generarObstaculos();
-        spawnComida();
+	   juegoTerminado = false;
+	   puntajeFinalCalculado = 0;
+	   puntajeAnimado = 0;
+	   
+	   reiniciarSerpiente();
+       puntosActuales = 0;
+       nivelActual = 1;
+       metaComida = 3;         // <-- IMPORTANTE! Volver al requisito del Nivel 1
+       cantidadObstaculos = 3; // <-- Volver a las 3 piedras iniciales
+       generarObstaculos();
+       spawnComida();
+       
+       esperandoSiguienteNivel = false;
     }
+   
+   public void activarGameOver() {
+	   if (!juegoTerminado) {
+		   juegoTerminado = true;
+		   
+		   int puntosPorNivel = (nivelActual - 1) * 100;
+		   
+		   int puntosPorObjetos = puntosActuales * 25;
+		   
+		   puntajeFinalCalculado = puntosPorNivel + puntosPorObjetos;
+		   puntajeAnimado = 0;
+	   }
+   }
     
     private void generarObstaculos() {
         obstaculos.clear();
@@ -288,7 +359,7 @@ public class PantallaJuego implements Screen {
                     continue;
                 }
 
-                // Revisar si el obstáculo ya existe 
+                // Revisar si el obstaculo ya existe 
                 boolean yaExiste = false;
                 for (Obstaculo obs : obstaculos) {
                     if (obs.getPosicion().x == x && obs.getPosicion().y == y) {
@@ -308,7 +379,13 @@ public class PantallaJuego implements Screen {
 
         nivelActual++;
         puntosActuales = 0;
-        metaComida += 2;
+        
+        if (nombreDificultad.equals("DIFICIL")) {
+            metaComida += 2; // Sube de 4 -> 6 -> 8 -> 10... Siempre par
+        } else {
+            metaComida += 2; // Sube de 3 -> 5 -> 7 -> 9... Siempre impar (ya que sumas de a 1)
+        }
+        
         cantidadObstaculos += 2;
         reiniciarSerpiente();
         generarObstaculos();
