@@ -19,12 +19,34 @@ Para transformar el prototipo geométrico inicial en un software modular y escal
 1. Clona este repositorio: https://github.com/patriciaazucar8-stack/Snake-LibGDX-PUCV.git
 2. Importa el proyecto en tu IDE como un proyecto existente.
 3. Ejecuta la clase principal de lanzamiento llamada `DesktopLauncher.java`
-## Controles 🐍
-* Flechas de dirección / WASD: Mover a la mascota.
-* Selección de dificultad: Seleccionar la dificultad con el mouse antes de iniciar
-* 1, 2 o 3: Para elegir a tu mascota.
-* ENTER: Para pasar al siguiente nivel.
-* ESC: Salir del juego.
+## 🎮 Cómo Jugar
+
+Sigue estas instrucciones para configurar tu partida, controlar a tu mascota y registrar tus mejores puntuaciones.
+
+### 1. Configuración Inicial (Menú y Selector)
+* **Iniciar el juego:** En la pantalla principal, presiona la pantalla para avanzar al selector.
+* **Seleccionar Dificultad:** Haz clic con el **Mouse** directamente sobre las opciones de velocidad en la pantalla para ajustar la rapidez de la partida.
+* **Seleccionar tu Mascota:** Utiliza los números de tu teclado para elegir tu compañero de juego:
+  * `1` ➔ **Gato** (Busca lanas, arranca de los perros)
+  * `2` ➔ **Perro** (Busca huesos)
+  * `3` ➔ **Pez** (Busca conchitas)
+
+### 2. Controles en la Partida
+Utiliza cualquiera de las dos configuraciones de teclado disponibles simultáneamente para mover a tu mascota por el mapa:
+* **Configuración Clásica:** Flechas de dirección (`Arriba`, `Abajo`, `Izquierda`, `Derecha`).
+* **Configuración Alternativa:** Teclas `W` (Arriba), `S` (Abajo), `A` (Izquierda) y `D` (Derecha).
+* **Meta:** Recolecta los objetos correspondientes a tu mascota para cumplir el objetivo del nivel. Al lograrlo, presiona la tecla `ENTER` para avanzar al siguiente escenario.
+
+### 3. Pantalla de Fin de Juego (Game Over) y Tabla de Posiciones
+* **Avanzar al Registro:** Cuando tu mascota se debilite y aparezca la pantalla de *Mascota Debilitada*, presiona la tecla `ENTER` para trasladarte a la pantalla de clasificaciones (*Leaderboard*).
+* **Registrar tu Puntaje:** Escribe tu nombre utilizando el teclado alfanumérico. 
+  * _Nota:_ Si presionas `ENTER` con el campo vacío, el sistema te registrará automáticamente con el nombre por defecto **"Mascota"**.
+* **Post-Partida:** Una vez guardado el puntaje, puedes presionar:
+  * `J` ➔ Para reiniciar y jugar una nueva partida de forma directa.
+  * `M` ➔ Para regresar al Menú Principal.
+
+### 4. Salida de Emergencia
+* Presiona la tecla `ESC` (Escape) en cualquier momento de la ejecución para cerrar el juego inmediatamente de forma segura.
 
 
 
