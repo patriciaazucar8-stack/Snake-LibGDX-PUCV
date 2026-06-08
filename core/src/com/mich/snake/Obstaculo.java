@@ -7,8 +7,7 @@ public class Obstaculo extends ObjetoMapa {
     }
 
     @Override
-    public void alColisionar(PantallaJuego juego) {
-        // Si chocas un obst�culo, mueres
+    protected void ejecutarAccionEspecifica(PantallaJuego juego) {
         juego.activarGameOver();
     }
 }

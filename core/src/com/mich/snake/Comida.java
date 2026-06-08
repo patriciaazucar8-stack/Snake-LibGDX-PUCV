@@ -3,22 +3,18 @@ package com.mich.snake;
 public class Comida extends ObjetoMapa {
 
     public Comida(int x, int y) {
-        super(x, y); // Pasa las coordenadas al constructor padre
+        super(x, y);
     }
 
     @Override
-    public void alColisionar(PantallaJuego juego) {
-        // Si la mascota come, suma puntos y reubica la comida
+    protected void ejecutarAccionEspecifica(PantallaJuego juego) {
         juego.puntosActuales++;
-        juego.spawnComida();
         
-        if (juego.puntosActuales >= juego.metaComida) {
-            juego.esperandoSiguienteNivel = true;
-        }
+        juego.esperandoSiguienteNivel = false;
     }
 
-    // Método para moverla cuando spawnea en otro lado
     public void setPosicion(int x, int y) {
-        this.posicion.set(x, y);
+        this.posicion.x = x;
+        this.posicion.y = y;
     }
 }

@@ -81,7 +81,7 @@ public class PantallaJuego implements Screen {
 	            Gdx.app.exit(); // Esto cierra la ventana del juego inmediatamente
 	        }
         }
-        // 3. LOGICA DE TIEMPO Y MOVIMIENTO
+     // --- 3. LOGICA DE TIEMPO Y MOVIMIENTO ---
         if (!esperandoSiguienteNivel && !juegoTerminado) {
 
             timer += delta;
@@ -94,7 +94,13 @@ public class PantallaJuego implements Screen {
                 
                 // Si comió, delegamos de forma polimórfica (Suma puntos, spawnea y revisa nivel)
                 if(comio) {
-                    comida.alColisionar(this);
+                    // 1. Se dispara el Template Method (Suma el punto base en Comida.java)
+                    comida.procesarColision(this);
+                    
+                    // 2. ¡AQUÍ VA EL SPAWN! Le exigimos a PantallaJuego reubicar la comida aleatoriamente
+                    spawnComida(); 
+
+                    // 3. Tus reglas adicionales de puntaje por dificultad
                     if (nombreDificultad.equals("DIFICIL")) {
                         puntosActuales += 1;
                     }
@@ -103,39 +109,38 @@ public class PantallaJuego implements Screen {
                     }
                 }
             
-            // Movemos al animal
-            	serpiente.mover(comio);
+                // Movemos al animal (crece si 'comio' fue true)
+                serpiente.mover(comio);
             
-            // Revisamos colision con bordes 
-            	int maxX = Gdx.graphics.getWidth() / TAM_CELDA;
-            	int maxY = Gdx.graphics.getHeight() / TAM_CELDA;
+                // Revisamos colision con bordes 
+                int maxX = Gdx.graphics.getWidth() / TAM_CELDA;
+                int maxY = Gdx.graphics.getHeight() / TAM_CELDA;
 
-            	float x = serpiente.getCabeza().x;
-            	float y = serpiente.getCabeza().y;
+                float x = serpiente.getCabeza().x;
+                float y = serpiente.getCabeza().y;
 
-            	if (x <= 0 || x >= maxX - 1 || y <= 0 || y >= maxY - 1) {
-            		activarGameOver();
-            	}
-            	
-            	for (Obstaculo obs : obstaculos) { 
-                    // Comparamos la posición de la cabeza recien movida con la piedra usando .getPosicion()
+                if (x <= 0 || x >= maxX - 1 || y <= 0 || y >= maxY - 1) {
+                    activarGameOver();
+                }
+                
+                // Revisamos colisión con los obstáculos (Piedras)
+                for (Obstaculo obs : obstaculos) { 
                     if (serpiente.getCabeza().x == obs.getPosicion().x && serpiente.getCabeza().y == obs.getPosicion().y) {
-                        // Se debe reiniciar el juego
-                        obs.alColisionar(this); 
+                        obs.procesarColision(this);
                         break;
                     }
                 }
             
-            // Revisar si mordio los objetos recolectados (Solo si tiene)
-            	for (int i = 1; i < serpiente.getCuerpo().size; i++) {
-            		Vector2 parte = serpiente.getCuerpo().get(i);
-            		if (serpiente.getCabeza().x == parte.x && serpiente.getCabeza().y == parte.y) {
-            			activarGameOver();
-            			break;
-            		}
-            	}
+                // Revisar si se mordió su propio cuerpo
+                for (int i = 1; i < serpiente.getCuerpo().size; i++) {
+                    Vector2 parte = serpiente.getCuerpo().get(i);
+                    if (serpiente.getCabeza().x == parte.x && serpiente.getCabeza().y == parte.y) {
+                        activarGameOver();
+                        break;
+                    }
+                }
             }
-        } 
+        }
 
      // 4. DIBUJAR 
         
