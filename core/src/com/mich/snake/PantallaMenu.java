@@ -13,7 +13,7 @@ public class PantallaMenu implements Screen {
     public PantallaMenu(final SnakeGame game) {
         this.game = game;
         font = new BitmapFont(); // Usa la fuente por defecto de LibGDX
-        font.getData().setScale(2); // La hacemos un poco más grande
+        font.getData().setScale(2); // La hacemos un poco mas grande
     }
     
     @Override
@@ -24,7 +24,7 @@ public class PantallaMenu implements Screen {
         
         game.batch.begin();
         
-        // FUENTE PARA LOS TÍTULOS 
+        // FUENTE PARA LOS Tï¿½TULOS 
         font.setColor(com.badlogic.gdx.graphics.Color.WHITE);
         font.getData().setScale(2.0f);
         // ----------------------------------------

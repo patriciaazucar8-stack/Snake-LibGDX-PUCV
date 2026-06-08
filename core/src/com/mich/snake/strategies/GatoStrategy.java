@@ -51,7 +51,7 @@ public class GatoStrategy implements SkinStrategy {
             }
         }
         
-        // Restauramos el color a blanco puro para no teñir el HUD ni los personajes
+        // Restauramos el color a blanco puro para no teÃ±ir el HUD ni los personajes
         batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
     }
     @Override

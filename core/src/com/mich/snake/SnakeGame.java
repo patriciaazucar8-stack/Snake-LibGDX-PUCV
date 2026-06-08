@@ -13,7 +13,7 @@ public class SnakeGame extends Game {
             shape = new ShapeRenderer();
             batch = new SpriteBatch();
             
-            //Iniciamos en el menú
+            //Iniciamos en el menu
             this.setScreen(new PantallaMenu(this));
     }
 

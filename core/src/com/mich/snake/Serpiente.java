@@ -40,13 +40,13 @@ public class Serpiente {
 
     public void setDireccion(int dir) {
 
-        // Primera dirección del juego
+        // Primera direccion del juego
         if (direccion == null) {
             direccion = dir;
             return;
         }
 
-        // Evitar giro 180°
+        // Evitar giro 180Â°
         if (direccion == Input.Keys.UP && dir == Input.Keys.DOWN) return;
         if (direccion == Input.Keys.DOWN && dir == Input.Keys.UP) return;
         if (direccion == Input.Keys.LEFT && dir == Input.Keys.RIGHT) return;
