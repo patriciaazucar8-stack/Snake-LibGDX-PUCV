@@ -1,5 +1,9 @@
 package com.mich.snake;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mich.snake.strategies.VelocidadStrategy;
+import com.mich.snake.strategies.VelocidadBase;
+import com.mich.snake.strategies.VelocidadLenta;
+import com.mich.snake.strategies.VelocidadRapida;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.Input;
@@ -22,6 +26,8 @@ public class PantallaJuego implements Screen {
     Comida comida;
     float velocidadJuego;
     float timer = 0;
+    private VelocidadStrategy estrategiaVelocidad = new VelocidadBase();
+    private float velocidadOriginalBase;
     String tipoSkin;
     Array<Obstaculo> obstaculos;
     int nivelActual = 1;
@@ -43,14 +49,17 @@ public class PantallaJuego implements Screen {
         
         // Extraemos los datos del builder
         this.skinActual = config.getSkinMascota();
-        // Convertimos los milisegundos del Builder (80, 140, 200) a floats (0.08f, 0.14f, 0.20f)
+        // Convertimos los milisegundos del Builder a floats
         this.velocidadJuego = config.getVelocidad() / 1000f; 
         this.nombreDificultad = config.getDificultadNombre();
         
+        // === MUEVE ESTA LÍNEA AQUÍ (Debajo de velocidadJuego) ===
+        this.velocidadOriginalBase = this.velocidadJuego;
+        
         if (nombreDificultad.equals("DIFICIL")) {
-            this.metaComida = 4; // Inicial par para que calce con los saltos de +2
+            this.metaComida = 4;
         } else {
-            this.metaComida = 3; // Inicial estándar para Fácil y Medio (saltos de +1)
+            this.metaComida = 3;
         }
         
         generarObstaculos();
@@ -85,8 +94,10 @@ public class PantallaJuego implements Screen {
         if (!esperandoSiguienteNivel && !juegoTerminado) {
 
             timer += delta;
+            
+            float velocidadActualizada = estrategiaVelocidad.modificarVelocidad(velocidadOriginalBase);
 
-            if(timer > velocidadJuego) {
+            if(timer > velocidadActualizada) {
                 timer = 0;
             
                 // Calculamos si comió usando .getPosicion() de la clase abstracta
@@ -292,20 +303,23 @@ public class PantallaJuego implements Screen {
         }
     }
     
-   public void reiniciarJuego() {
-	   juegoTerminado = false;
-	   puntajeFinalCalculado = 0;
-	   puntajeAnimado = 0;
-	   
-	   reiniciarSerpiente();
-       puntosActuales = 0;
-       nivelActual = 1;
-       metaComida = 3;         // <-- IMPORTANTE! Volver al requisito del Nivel 1
-       cantidadObstaculos = 3; // <-- Volver a las 3 piedras iniciales
-       generarObstaculos();
-       spawnComida();
-       
-       esperandoSiguienteNivel = false;
+    public void reiniciarJuego() {
+        juegoTerminado = false;
+        puntajeFinalCalculado = 0;
+        puntajeAnimado = 0;
+            
+        // === DEJA ESTA LÍNEA LIMPIA ASÍ ===
+        this.estrategiaVelocidad = new VelocidadBase();
+            
+        reiniciarSerpiente();
+        puntosActuales = 0;
+        nivelActual = 1;
+        metaComida = 3;          
+        cantidadObstaculos = 3; 
+        generarObstaculos();
+        spawnComida();
+            
+        esperandoSiguienteNivel = false;
     }
    
    public void activarGameOver() {
@@ -380,10 +394,30 @@ public class PantallaJuego implements Screen {
             }
         }
     }
+    
     private void iniciarSiguienteNivel() {
 
         nivelActual++;
         puntosActuales = 0;
+        
+        // === PARADOJA DE VELOCIDAD DINÁMICA (STRATEGY) ===
+        if (esNivelPrimoPermitido(nivelActual)) {
+            if (nombreDificultad.equals("DIFICIL")) {
+                this.estrategiaVelocidad = new VelocidadLenta(); // De Difícil pasa a Fácil (Respiro)
+            } else if (nombreDificultad.equals("MEDIO")) {
+                this.estrategiaVelocidad = new VelocidadRapida(); // De Medio pasa a Difícil (Presión)
+            } else if (nombreDificultad.equals("FACIL")) {
+                // De Fácil pasa a velocidad de modo MEDIO (Desafío)
+                this.estrategiaVelocidad = new VelocidadStrategy() {
+                    @Override
+                    public float modificarVelocidad(float velocidadBase) { return 0.12f; }
+                };
+            }
+        } else {
+            // Si el nivel NO es primo, vuelve a la velocidad elegida por el jugador en el menú
+            this.estrategiaVelocidad = new VelocidadBase(); 
+        }
+        // =================================================
         
         if (nombreDificultad.equals("DIFICIL")) {
             metaComida += 2; // Sube de 4 -> 6 -> 8 -> 10... Siempre par
@@ -404,6 +438,16 @@ public class PantallaJuego implements Screen {
         int centroY = (Gdx.graphics.getHeight() / TAM_CELDA) / 2;
 
         serpiente = new Serpiente(centroX, centroY);
+    }
+    
+    private boolean esNivelPrimoPermitido(int nivel) {
+        if (nivel == 2) return false; // Excluimos el nivel 2 por tu regla
+        if (nivel <= 1) return false; // El nivel 1 tampoco es primo
+        
+        for (int i = 2; i <= Math.sqrt(nivel); i++) {
+            if (nivel % i == 0) return false;
+        }
+        return true; // Retorna true si es 3, 5, 7, 11...
     }
     
     // Estos metodos son obligatorios por la interfaz Screen

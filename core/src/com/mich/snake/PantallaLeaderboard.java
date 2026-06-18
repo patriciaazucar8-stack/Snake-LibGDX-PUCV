@@ -18,14 +18,14 @@ public class PantallaLeaderboard implements Screen {
     private Array<Integer> puntajes;
     private Array<String> dificultades;
 
-    // Variables para el registro de un nuevo récord
+    // Variables para el registro de un nuevo record
     private boolean calificaParaTop10 = false;
     private int puntajeLogrado;
     private String dificultadLograda;
     private StringBuilder nombreIngresado;
     private boolean nombreGuardado = false;
 
-    // Constructor cuando vienes a VER la leaderboard desde el menú principal
+    // Constructor cuando vienes a VER la leaderboard desde el menu principal
     public PantallaLeaderboard(final SnakeGame game) {
         this.game = game;
         this.font = new BitmapFont();
@@ -63,11 +63,11 @@ public class PantallaLeaderboard implements Screen {
     }
 
     private void verificarSiEntraEnTop(int nuevoPuntaje) {
-        // Si el puntaje es mayor que cero y (la lista no está llena de récords reales o supera al último puesto)
+        // Si el puntaje es mayor que cero y (la lista no esta llena de records reales o supera al ultimo puesto)
         if (nuevoPuntaje > 0 && (puntajes.get(9) == 0 || nuevoPuntaje > puntajes.get(9))) {
             calificaParaTop10 = true;
             nombreGuardado = false;
-            // Abrimos el teclado en pantalla en dispositivos móviles por si acaso
+            // Abrimos el teclado en pantalla en dispositivos moviles por si acaso
             Gdx.input.setOnscreenKeyboardVisible(true); 
         } else {
             nombreGuardado = true; // No califica, no hay nada que bloquear
@@ -77,7 +77,7 @@ public class PantallaLeaderboard implements Screen {
     private void guardarNuevoRecord(String nombreFinal) {
         if (nombreFinal.isEmpty()) nombreFinal = "MASCOTA";
 
-        // Encontrar la posición correcta para insertar el nuevo puntaje ordenadamente
+        // Encontrar la posicion correcta para insertar el nuevo puntaje ordenadamente
         int posicionInsercion = 10;
         for (int i = 0; i < 10; i++) {
             if (puntajeLogrado > puntajes.get(i)) {
@@ -103,14 +103,14 @@ public class PantallaLeaderboard implements Screen {
                 prefs.putInteger("pts_" + (i + 1), puntajes.get(i));
                 prefs.putString("dif_" + (i + 1), dificultades.get(i));
             }
-            prefs.flush(); // Guarda físicamente el archivo en el disco
+            prefs.flush(); // Guarda fisicamente el archivo en el disco
         }
         nombreGuardado = true;
         Gdx.input.setOnscreenKeyboardVisible(false);
     }
 
     private void leerEntradaTeclado() {
-        // Capturar letras para el nombre (máximo 5 caracteres para mantener la estética ordenada)
+        // Capturar letras para el nombre (maximo 5 caracteres para mantener la estetica ordenada)
         for (int key = Input.Keys.A; key <= Input.Keys.Z; key++) {
             if (Gdx.input.isKeyJustPressed(key) && nombreIngresado.length() < 5) {
                 nombreIngresado.append(Input.Keys.toString(key));
@@ -132,23 +132,23 @@ public class PantallaLeaderboard implements Screen {
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Si el jugador rompió un récord, leemos su teclado
+        // Si el jugador rompio un record, leemos su teclado
         if (calificaParaTop10 && !nombreGuardado) {
             leerEntradaTeclado();
         }
 
         game.batch.begin();
 
-        // 1. TÍTULO DE LA PANTALLA
+        // 1. TITULO DE LA PANTALLA
         font.setColor(com.badlogic.gdx.graphics.Color.GOLD);
         font.getData().setScale(1.8f);
         font.draw(game.batch, "TABLA DE MEJORES PUNTAJES", 140, 450);
 
-        // --- 🆕 CASO ESPECIAL: PANEL DE ESCRITURA FLOTANTE SI CLASIFICÓ ---
+        // --- CASO ESPECIAL: PANEL DE ESCRITURA FLOTANTE SI CLASIFICO“ ---
         if (calificaParaTop10 && !nombreGuardado) {
             font.setColor(com.badlogic.gdx.graphics.Color.GREEN);
             font.getData().setScale(1.2f);
-            font.draw(game.batch, "TU RÉCORD: " + nombreIngresado.toString() + (System.currentTimeMillis() % 1000 < 500 ? "_" : "") 
+            font.draw(game.batch, "TU RECORD: " + nombreIngresado.toString() + (System.currentTimeMillis() % 1000 < 500 ? "_" : "") 
                     + "  |  DIF: " + dificultadLograda + "  |  PTS: " + puntajeLogrado, 130, 410);
         }
 
@@ -163,9 +163,9 @@ public class PantallaLeaderboard implements Screen {
         // 3. PINTAR EL TOP 10 REAL (SIN SALTARSE NADA)
         font.setColor(com.badlogic.gdx.graphics.Color.WHITE);
         for (int i = 0; i < 10; i++) {
-            float yPos = 340 - (i * 24); // Separación vertical ordenada
+            float yPos = 340 - (i * 24); // Separacion vertical ordenada
 
-            // Si el nombre está vacío o es el por defecto, lo pintamos más tenue
+            // Si el nombre esta vacio o es el por defecto, lo pintamos mas tenue
             if (nombres.get(i).equals("VACIO")) {
                 font.setColor(com.badlogic.gdx.graphics.Color.GRAY);
             } else {
@@ -183,13 +183,13 @@ public class PantallaLeaderboard implements Screen {
         if (!nombreGuardado) {
             font.setColor(com.badlogic.gdx.graphics.Color.YELLOW);
             font.getData().setScale(1.1f);
-            font.draw(game.batch, "¡RÉCORD ALCANZADO! Escribe tu nombre y presiona [ ENTER ]", 90, 75);
+            font.draw(game.batch, "¡RECORD ALCANZADO! Escribe tu nombre y presiona [ ENTER ]", 90, 75);
         } else {
             font.setColor(com.badlogic.gdx.graphics.Color.ORANGE);
             font.getData().setScale(1.2f);
-            font.draw(game.batch, "[ J ] Jugar de Nuevo           [ M ] Volver al Menú", 130, 75);
+            font.draw(game.batch, "[ J ] Jugar de Nuevo           [ M ] Volver al Menu", 130, 75);
 
-            // Captura de navegación posterior
+            // Captura de navegacion posterior
             if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
                 game.setScreen(new SelectorPantalla(game));
                 dispose();
