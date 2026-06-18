@@ -50,7 +50,6 @@ public class GatoStrategy implements SkinStrategy {
                 batch.draw(RecursosJuego.getInstance().texPasto, x * tamCelda, y * tamCelda, tamCelda * 4, tamCelda * 4);
             }
         }
-        
         // Restauramos el color a blanco puro para no te�ir el HUD ni los personajes
         batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
     }

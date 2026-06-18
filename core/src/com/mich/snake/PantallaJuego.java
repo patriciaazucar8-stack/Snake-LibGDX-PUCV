@@ -111,7 +111,7 @@ public class PantallaJuego implements Screen {
                     // 2. ¡AQUÍ VA EL SPAWN! Le exigimos a PantallaJuego reubicar la comida aleatoriamente
                     spawnComida(); 
 
-                    // 3. Tus reglas adicionales de puntaje por dificultad
+                    // 3. Puntaje por dificultad
                     if (nombreDificultad.equals("DIFICIL")) {
                         puntosActuales += 1;
                     }
