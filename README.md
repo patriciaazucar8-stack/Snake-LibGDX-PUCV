@@ -5,11 +5,13 @@ El proyecto implementa arquitectura orientada a objetos y patrones de diseño pa
 * Múltiples Mascotas: Juega como Gato, Perro o Pez mediante lógicas de personalización independientes.
 * Sistema de Ítems Temáticos: El personaje recolecta objetos valiosos (ovillos de lana, huesos, conchitas) que se van acumulando físicamente en una hilera detrás de él.
 * Interfaz de Usuario: Menú de configuración dinámico con selección de dificultad por mouse, navegación por teclado para las mascotas y salida rápida con la tecla ESC.
+* Niveles progresivos y ajuste de velocidad: El juego avanza por niveles donde aumenta la cantidad de objetos a recolectar y los obstáculos. Además, cuando el número del nivel es primo, la velocidad del juego se modifica dinámicamente: si es rápida, pasa a lenta, y si es media o lenta, se acelera.
 ## Arquitectura y Patrones de Diseño 🐱
 Para transformar el prototipo geométrico inicial en un software modular y escalable, se aplicaron los siguientes principios de ingeniería:
-* Patrón Strategy (SkinStrategy): Centraliza la apariencia y características de cada mascota. Permite cambiar entre GatoStrategy, PerroStrategy y PezStrategy de forma polimórfica, modificando texturas, objetos recolectables y colores del entorno sin alterar la lógica principal del juego.
+* SkinStrategy: Centraliza la apariencia y características de cada mascota. Permite cambiar entre GatoStrategy, PerroStrategy y PezStrategy de forma polimórfica, modificando texturas, objetos recolectables y colores del entorno sin alterar la lógica principal del juego.
+* VelocidadStrategy: Gestiona el comportamiento de las físicas del juego en tiempo de ejecución (Run-time). Permite realizar un intercambio dinámico de estrategias en los niveles primos (y distinto de 2), mutando entre VelocidadBase, VelocidadLenta y VelocidadRapida.
 * Patrón Builder (PartidaBuilder): Permite construir una partida a partir de las opciones seleccionadas por el jugador antes de comenzar. Configura aspectos como la mascota y la dificultad, generando un objeto Partida completamente configurado e inmutable mediante el método build(), lo que desacopla el menú visual de la lógica del juego.
-* Clase Abstracta y Polimorfismo (ObjetoMapa): Representa de forma genérica cualquier entidad estática del mapa, centralizando las coordenadas compartidas mediante un Vector2 y obligando a sus clases hijas (Comida y Obstaculo) a implementar el método alColisionar(), lo que permite procesar las colisiones del entorno de forma genérica.
+* Clase Abstracta y Polimorfismo (ObjetoMapa): Representa de forma genérica cualquier entidad estática del mapa, centralizando las coordenadas compartidas mediante un Vector2 y obligando a sus clases hijas (Comida y Obstaculo) a implementar el método procesarColision, lo que permite procesar las colisiones del entorno de forma genérica.
 * Separación de Responsabilidades: Serpiente encapsula el modelo lógico, las posiciones de su cuerpo y el movimiento de la mascota, mientras que PantallaJuego actúa como controlador central del juego, gestionando el tiempo, las colisiones y el renderizado.
 ## Requisitos e Instalación 🐟
 ### Requisitos Previos
@@ -36,6 +38,7 @@ Utiliza cualquiera de las dos configuraciones de teclado disponibles simultánea
 * **Configuración Clásica:** Flechas de dirección (`Arriba`, `Abajo`, `Izquierda`, `Derecha`).
 * **Configuración Alternativa:** Teclas `W` (Arriba), `S` (Abajo), `A` (Izquierda) y `D` (Derecha).
 * **Meta:** Recolecta los objetos correspondientes a tu mascota para cumplir el objetivo del nivel. Al lograrlo, presiona la tecla `ENTER` para avanzar al siguiente escenario.
+* **Alerta de Niveles Primos :** ¡Ten cuidado al avanzar! En los niveles representados por números primos (Niveles 3, 5, 7, 11...), el código de físicas se desestabiliza. La velocidad cambiará de forma imprevista según la dificultad inicial: el modo Difícil se ralentizará para darte un respiro, mientras que los modos Medio y Fácil se acelerarán para presionarte. Al pasar a un nivel par, la velocidad base de tu menú inicial se restablecerá automáticamente.
 
 ### 3. Pantalla de Fin de Juego (Game Over) y Tabla de Posiciones
 * **Avanzar al Registro:** Cuando tu mascota se debilite y aparezca la pantalla de *Mascota Debilitada*, presiona la tecla `ENTER` para trasladarte a la pantalla de clasificaciones (*Leaderboard*).
